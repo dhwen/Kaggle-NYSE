@@ -22,10 +22,11 @@ builder = saved_model_builder.SavedModelBuilder(export_path)
 
 model = Model()
 loader = DataLoader()
-[train_input, train_labels] = loader.load(file_name='data/aapl.us.csv')
+[train_input, train_labels] = loader.load(file_name='Stocks/aapl.us.txt',row_start=2,row_end=6000)
+[test_input, test_labels] = loader.load(file_name='Stocks/aapl.us.txt',row_start=7501,row_end=8000)
 
-print(len(train_input[0]))
-print(len(train_labels[0]))
+for label in train_labels:
+	print(label)
 
 #//Model Run//
 
@@ -39,13 +40,18 @@ with tf.Session(graph=model.graph) as sess:
 	#	print "restored"
 
 	#/Train Network
-	i=0
-	num_epochs = np.power(10, 5)
+	i = 0
+	num_epochs = np.power(10, 4)
 	for _ in range(num_epochs):
 		i=i+1
-		[out, loss] = sess.run([model.opt, model.loss], feed_dict={model.input: train_input, model.label: train_labels})
-		print('Epoch %d, training accuracy is %g' % (i, loss))
+		[opt, output, loss] = sess.run([model.opt, model.output, model.loss], feed_dict={model.input: train_input, model.label: train_labels})
+		print('Epoch %d, training loss is %g' % (i, loss))
 
-	
+		[output, loss] = sess.run([model.output, model.loss], feed_dict={model.input: test_input, model.label: test_labels})
+		print('Epoch %d, test loss is %g' % (i, loss))
+
+	np.savetxt('test_labels.txt', np.array(test_labels, dtype=np.float))
+	np.savetxt('test_output.txt', output)
+
 	#/Save ckpt file
 	saver.save(sess,ckpt_path + "SmallNet.ckpt")

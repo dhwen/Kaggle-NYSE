@@ -1,26 +1,35 @@
-import tensorflow as tf
-from tensorflow.python.saved_model import builder as saved_model_builder
-import os
-import shutil
 import numpy as np
 import csv
 
 
 class DataLoader:
 
-	def load(self, file_name):
-		file_train = open(file_name,'r')
+	def load(self, file_name, row_start, row_end):
+		file_data = open(file_name,'r')
 
-		train_reader = csv.reader(file_train)
-		next(train_reader)
+		data_reader = csv.reader(file_data)
+		cur_row = 0;
 
-		train_input = []
-		train_labels = []
-		for row in train_reader:
-			train_input.append(row[1:5])
-			train_labels.append(row[1:2])
+		input = []
+		labels = []
 
-		train_input.pop(len(train_input) - 1)
-		train_labels.pop(0)
+		stock_prev_val = 0;
 
-		return train_input, train_labels
+		for row in data_reader:
+			cur_row = cur_row + 1
+			if (cur_row < row_start):
+				continue
+			elif (cur_row > row_end):
+				break
+
+			input.append(row[1:5])
+			if(float(row[1:2][0]) > stock_prev_val):
+				labels.append([0, 1])
+			else:
+				labels.append([1, 0])
+			stock_prev_val = float(row[1:2][0])
+
+		input.pop(len(input) - 1)
+		labels.pop(0)
+
+		return input, labels

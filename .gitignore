@@ -18,6 +18,10 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Data Folders
+ETFs/
+Stocks/
+
 # =========================
 # Operating System Files
 # =========================
